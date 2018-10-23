@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  author: Karol Ossowski
+  description: pgpool2 role
+
+  issue_tracker_url: https://github.com/kkoralsky/issues
+  license: BSD
+
+  min_ansible_version: 2.2
+
+  platforms:
+  - name: Debian
+    versions:
+    - stretch
+    - buster
+  - name: Ubuntu
+  galaxy_tags: [debian, postgres, pgpool, pgpool2]
+
+dependencies: []

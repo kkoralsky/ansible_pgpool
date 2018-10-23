@@ -1,0 +1,26 @@
+---
+pgpool_install_os: yes
+
+pgpool_listen_addresses: localhost
+pgpool_port: 5432
+pgpool_serialize_accept: no
+
+pgpool_backends: 
+  - host: localhost
+
+pgpool_num_init_children: 32
+pgpool_max_pool: 4
+pgpool_load_balance_mode: no
+pgpool_master_slave_mode: no
+
+pgpool_memcache_enabled: no
+
+pgpool_memcache:
+  method: shmem
+  host: localhost
+  port: 11211
+  total_size: 67108864
+  max_num_cache: 1000000
+  expire: 0    
+  maxcache: 409600
+  block_size: 1048576
