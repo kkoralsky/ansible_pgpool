@@ -48,15 +48,15 @@ pcp_socket_dir = '/var/run/postgresql'
 # - Backend Connection Settings -
 
 {% for b in pgpool_backends %}
-backend_hostname{{ loop.index }} = '{{ b.host }}'
+backend_hostname{{ loop.index0 }} = '{{ b.host }}'
                                    # Host name or IP address to connect to for backend 0
-backend_port{{ loop.index }} = {{ b.port|default(5432) }}
+backend_port{{ loop.index0 }} = {{ b.port|default(5432) }}
                                    # Port number for backend 0
-backend_weight{{ loop.index }} = {{ b.weight|default(1) }}
+backend_weight{{ loop.index0 }} = {{ b.weight|default(1) }}
                                    # Weight for backend 0 (only in load balancing mode)
-backend_data_directory{{ loop.index }} = '{{ b.directory|default('/var/lib/pgsql/data') }}'
+backend_data_directory{{ loop.index0 }} = '{{ b.directory|default('/var/lib/pgsql/data') }}'
                                    # Data directory for backend 0
-backend_flag{{ loop.index }} = 'ALLOW_TO_FAILOVER'
+backend_flag{{ loop.index0 }} = 'ALLOW_TO_FAILOVER'
                                    # Controls various backend behavior
                                    # ALLOW_TO_FAILOVER or DISALLOW_TO_FAILOVER
 {% endfor %}
