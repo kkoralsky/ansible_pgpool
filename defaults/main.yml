@@ -1,7 +1,7 @@
 ---
 pgpool_install_os: yes
 
-pgpool_listen_addresses: localhost
+pgpool_listen_addresses: 127.0.0.1
 pgpool_port: 5432
 pgpool_serialize_accept: no
 
