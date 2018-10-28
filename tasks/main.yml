@@ -9,7 +9,7 @@
   - name: add PGDG apt repository 
     apt_repository: repo='{{ postgres_pgdg.repo }}'
   tags: [pgpool_install, install]
-  when: not pgpool_install_os
+  when: not pgpool_install_os|bool
 
 - name: install pgpool
   apt: name=pgpool2 state=latest

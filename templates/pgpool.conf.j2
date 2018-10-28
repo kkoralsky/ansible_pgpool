@@ -342,7 +342,7 @@ follow_master_command = ''
                                    #   %% = '%' character
 {% endif %}
 
-{% if pgpool_healthcheck_enabled %}
+{% if pgpool_healthcheck_enabled|bool %}
 #------------------------------------------------------------------------------
 # HEALTH CHECK
 #------------------------------------------------------------------------------
@@ -374,7 +374,7 @@ connect_timeout = {{ pgpool_healthcheck.connect_timeout|default(10000) }}
 								   # but also for ordinary conection to backend.
 {% endif %}
 
-{% if pgpool_failover_enabled %}
+{% if pgpool_failover_enabled|bool %}
 #------------------------------------------------------------------------------
 # FAILOVER AND FAILBACK
 #------------------------------------------------------------------------------
@@ -661,7 +661,7 @@ check_unlogged_table = on
                                    # and you want to save access to primary/master, you could turn this off.
                                    # Default is on.
 
-{% if pgpool_memcache_enabled %}
+{% if pgpool_memcache_enabled|bool %}
 #------------------------------------------------------------------------------
 # IN MEMORY QUERY MEMORY CACHE
 #------------------------------------------------------------------------------
