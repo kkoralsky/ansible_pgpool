@@ -408,7 +408,11 @@ failback_command = ''
                                    #   %R = new master database cluster path
                                    #   %% = '%' character
 
-fail_over_on_backend_error = {% if pgpool_failover.on_backend_error %}on{% else %}off{% endif %}
+{% if pgpool_failover.on_backend_error is defined and pgpool_failover.on_backend_error %}
+fail_over_on_backend_error = on
+{% else %}
+fail_over_on_backend_error = off
+{% endif %}
                                    # Initiates failover when reading/writing to the
                                    # backend communication socket fails
                                    # If set to off, pgpool will report an
