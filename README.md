@@ -21,7 +21,8 @@ Role Variables
 - `pgpool_num_init_children` (default: 32)
 - `pgpool_max_pool` (default: 10)
 - `pgpool_load_balance_mode` - whether to delegate some SELECT queries to replicas
-- `pgpool_master_slave_enabled` - let pgpool figure out which backend is master or slave
+- `pgpool_master_slave_enabled` - let pgpool figure out which backend is master or slave;
+  note that in this mode md5 authentication to the backends does not work
 - `pgpool_master_slave`
     - `database` (default: `pgpool`) note: you need to create it prior
     - `user` (default: `pgpool`) note: as above
