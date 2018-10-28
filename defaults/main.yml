@@ -22,6 +22,12 @@ pgpool_master_slave_mode:
   user: pgpool
   delay_threshold: 0
 
+pgpool_failover_enabled: yes
+pgpool_failover:
+  on_backend_error: yes
+  detach_false_primary: no
+  search_primary_node_timeout: 0
+
 pgpool_healthcheck_enabled: no
 pgpool_healthcheck:
   period: 5

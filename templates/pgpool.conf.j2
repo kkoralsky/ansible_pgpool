@@ -364,7 +364,7 @@ health_check_database = '{{ pgpool_healthcheck.database|default('pgpool') }}'
 
 health_check_max_retries = {{ pgpool_healthcheck.max_retries|default(5) }}
                                    # Maximum number of times to retry a failed health check before giving up.
-health_check_retry_delay = {{ pgpool_healthcheck.retry_delay|default(5) }}
+health_check_retry_delay = {{ pgpool_healthcheck.retry_delay|default(0) }}
                                    # Amount of time to wait (in seconds) between retries.
 connect_timeout = {{ pgpool_healthcheck.connect_timeout|default(10000) }}
                                    # Timeout value in milliseconds before giving up to connect to backend.
@@ -374,6 +374,7 @@ connect_timeout = {{ pgpool_healthcheck.connect_timeout|default(10000) }}
 								   # but also for ordinary conection to backend.
 {% endif %}
 
+{% if pgpool_failover_enabled %}
 #------------------------------------------------------------------------------
 # FAILOVER AND FAILBACK
 #------------------------------------------------------------------------------
@@ -407,18 +408,24 @@ failback_command = ''
                                    #   %R = new master database cluster path
                                    #   %% = '%' character
 
-fail_over_on_backend_error = on
+fail_over_on_backend_error = {% if pgpool_failover.on_backend_error %}on{% else %}off{% endif %}
                                    # Initiates failover when reading/writing to the
                                    # backend communication socket fails
                                    # If set to off, pgpool will report an
                                    # error and disconnect the session.
 
-search_primary_node_timeout = 300
+search_primary_node_timeout = {{ pgpool_failover.search_primary_node_timeout|defult(300) }}
                                    # Timeout in seconds to search for the
                                    # primary node when a failover occurs.
                                    # 0 means no timeout, keep searching
                                    # for a primary node forever.
-
+{% if pgpool_failover.detach_false_primary is defined and pgpool_failover.detach_false_primary %}
+detach_false_primary = on
+{% else %}
+detach_false_primary = off
+{% endif %}
+                                   
+{% endif %}
 #------------------------------------------------------------------------------
 # ONLINE RECOVERY
 #------------------------------------------------------------------------------
