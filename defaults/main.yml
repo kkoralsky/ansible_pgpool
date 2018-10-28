@@ -7,14 +7,32 @@ pgpool_serialize_accept: no
 
 pgpool_backends: 
   - host: localhost
+    directory: '{{ pgpool_default_backend_directory }}'
 
 pgpool_num_init_children: 32
-pgpool_max_pool: 4
+pgpool_max_pool: 10
 pgpool_load_balance_mode: no
-pgpool_master_slave_mode: no
+
+
+pgpool_backends_version: '{{ postgres_version|default("9.6") }}'
+
+pgpool_master_slave_mode_enabled: no
+pgpool_master_slave_mode:
+  database: pgpool
+  user: pgpool
+  delay_threshold: 0
+
+pgpool_healthcheck_enabled: no
+pgpool_healthcheck:
+  period: 5
+  timeout: 20
+  user: pgpool
+  database: pgpool
+  max_retries: 0
+  retry_delay: 1
+  connect_timeout: 1000
 
 pgpool_memcache_enabled: no
-
 pgpool_memcache:
   method: shmem
   host: localhost

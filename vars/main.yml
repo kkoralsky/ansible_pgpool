@@ -3,3 +3,6 @@ postgres_pgdg:
   release: '{{ ansible_distribution_release }}-pgdg'
   repo: deb https://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main
   key: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+
+pgpool_pg_ctl: '/usr/lib/postgresql/{{ pgpool_backends_version }}/bin/pg_ctl'
+pgpool_default_backend_directory: '/var/lib/postgresql/{{ pgpool_backends_version }}/main'

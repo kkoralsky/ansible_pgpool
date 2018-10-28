@@ -1,6 +1,7 @@
 # {{ ansible_managed }}
 # ----------------------------
 # pgPool-II configuration file
+
 # ----------------------------
 
 
@@ -49,16 +50,10 @@ pcp_socket_dir = '/var/run/postgresql'
 
 {% for b in pgpool_backends %}
 backend_hostname{{ loop.index0 }} = '{{ b.host }}'
-                                   # Host name or IP address to connect to for backend 0
 backend_port{{ loop.index0 }} = {{ b.port|default(5432) }}
-                                   # Port number for backend 0
 backend_weight{{ loop.index0 }} = {{ b.weight|default(1) }}
-                                   # Weight for backend 0 (only in load balancing mode)
-backend_data_directory{{ loop.index0 }} = '{{ b.directory|default('/var/lib/pgsql/data') }}'
-                                   # Data directory for backend 0
+backend_data_directory{{ loop.index0 }} = '{{ b.directory|default(pgpool_default_backend_directory) }}'
 backend_flag{{ loop.index0 }} = 'ALLOW_TO_FAILOVER'
-                                   # Controls various backend behavior
-                                   # ALLOW_TO_FAILOVER or DISALLOW_TO_FAILOVER
 {% endfor %}
 
 # - Authentication -
@@ -162,7 +157,7 @@ syslog_ident = 'pgpool'
 
 # - Debug -
 
-debug_level = 0
+debug_level = 2
                                    # Debug message verbosity level
                                    # 0 means no message, 1 or more mean verbose
 
@@ -294,11 +289,12 @@ allow_sql_comments = off
 								   # If off, SQL comments effectively prevent the judgment
 								   # (pre 3.4 behavior).
 
+{% if pgpool_master_slave_mode_enabled|bool %}
 #------------------------------------------------------------------------------
 # MASTER/SLAVE MODE
 #------------------------------------------------------------------------------
 
-master_slave_mode = {% if pgpool_master_slave_mode|bool %}on{% else %}off{% endif %}
+master_slave_mode = {% if pgpool_master_slave_mode_enabled|bool %}on{% else %}off{% endif %}
                                    # Activate master/slave mode
                                    # (change requires restart)
 master_slave_sub_mode = 'stream'
@@ -309,19 +305,21 @@ master_slave_sub_mode = 'stream'
 
 # - Streaming -
 
-sr_check_period = 0
+sr_check_period = {{ pgpool_master_slave_mode.check_period|default(0) }}
                                    # Streaming replication check period
                                    # Disabled (0) by default
-sr_check_user = 'nobody'
+sr_check_user = '{{ pgpool_master_slave_mode.user|default('pgpool') }}'
                                    # Streaming replication check user
                                    # This is necessary even if you disable
                                    # streaming replication delay check with
                                    # sr_check_period = 0
-sr_check_password = ''
+{% if pgpool_master_slave_mode.password is defined and pgpool_master_slave_mode.password %}
+sr_check_password = '{{ pgpool_master_slave_mode.password }}'
+{% endif %}
                                    # Password for streaming replication check user
-sr_check_database = 'postgres'
+sr_check_database = '{{ pgpool_master_slave_mode.database|default('pgpool') }}'
                                    # Database name for streaming replication check
-delay_threshold = 0
+delay_threshold = {{ pgpool_master_slave_mode.delay_threshold|default(0) }}
                                    # Threshold before not dispatching query to standby node
                                    # Unit is in bytes
                                    # Disabled (0) by default
@@ -342,40 +340,45 @@ follow_master_command = ''
                                    #   %r = new master port number
                                    #   %R = new master database cluster path
                                    #   %% = '%' character
+{% endif %}
 
+{% if pgpool_healthcheck_enabled %}
 #------------------------------------------------------------------------------
 # HEALTH CHECK
 #------------------------------------------------------------------------------
 
-health_check_period = 0
+health_check_period = {{ pgpool_healthcheck.period|default(5) }}
                                    # Health check period
                                    # Disabled (0) by default
-health_check_timeout = 20
+health_check_timeout = {{ pgpool_healthcheck.timeout|default(1) }}
                                    # Health check timeout
                                    # 0 means no timeout
-health_check_user = 'nobody'
+health_check_user = '{{ pgpool_healthcheck.user|default('pgpool') }}'
                                    # Health check user
-health_check_password = ''
+{% if pgpool_healthcheck.password is defined and pgpool_healthcheck.password %}
+health_check_password = '{{ pgpool_healthcheck.password }}'
+{% endif %}
                                    # Password for health check user
-health_check_database = ''
+health_check_database = '{{ pgpool_healthcheck.database|default('pgpool') }}'
                                    # Database name for health check. If '', tries 'postgres' frist, then 'template1'
 
-health_check_max_retries = 0
+health_check_max_retries = {{ pgpool_healthcheck.max_retries|default(5) }}
                                    # Maximum number of times to retry a failed health check before giving up.
-health_check_retry_delay = 1
+health_check_retry_delay = {{ pgpool_healthcheck.retry_delay|default(5) }}
                                    # Amount of time to wait (in seconds) between retries.
-connect_timeout = 10000
+connect_timeout = {{ pgpool_healthcheck.connect_timeout|default(10000) }}
                                    # Timeout value in milliseconds before giving up to connect to backend.
 								   # Default is 10000 ms (10 second). Flaky network user may want to increase
 								   # the value. 0 means no timeout.
 								   # Note that this value is not only used for health check,
 								   # but also for ordinary conection to backend.
+{% endif %}
 
 #------------------------------------------------------------------------------
 # FAILOVER AND FAILBACK
 #------------------------------------------------------------------------------
 
-failover_command = ''
+failover_command = '/home/postgres/failover.sh %d %P %h %H %D %R'
                                    # Executes this command at failover
                                    # Special values:
                                    #   %d = node id
@@ -647,6 +650,7 @@ check_unlogged_table = on
                                    # and you want to save access to primary/master, you could turn this off.
                                    # Default is on.
 
+{% if pgpool_memcache_enabled %}
 #------------------------------------------------------------------------------
 # IN MEMORY QUERY MEMORY CACHE
 #------------------------------------------------------------------------------
@@ -704,3 +708,4 @@ black_memqcache_table_list = ''
                                    # Comma separated list of table names not to memcache
                                    # that don't write to database
                                    # Regexp are accepted
+{% endif %}
