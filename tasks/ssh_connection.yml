@@ -1,0 +1,23 @@
+- name: install openssh-client for ssh-keygen
+  apt: name=openssh-client
+
+- name: generate ssh key for postgres user
+  user: name=postgres generate_ssh_key=yes
+  register: pgpool_postgres_user
+
+- name: authorize postgres user on backend hosts
+  authorized_key: user=postgres key='{{ pgpool_postgres_user.ssh_public_key }}'
+  delegate_to: '{{ item.host }}'
+  loop: '{{ pgpool_backends }}'
+
+- block:
+  - name: install ssh server
+    apt: name=openssh-server
+    delegate_to: '{{ item.host }}'
+    loop: '{{ pgpool_backends }}'
+  - name: make sure ssh server is up and running
+    service: name=ssh state=started
+    delegate_to: '{{ item.host }}'
+    loop: '{{ pgpool_backends }}'
+  when: ansible_connection=='docker'
+  tags: docker

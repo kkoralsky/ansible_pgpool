@@ -1,0 +1,20 @@
+#!/bin/sh
+
+failed_node=$1
+old_primary=$2
+
+old_host=$3
+new_host=$4
+
+old_path=$5
+new_path=$6
+
+if [ "$failed_node" = "$old_primary" ]; then
+    if [ "$old_host" ] && [ "$old_path" ]; then
+        ssh postgres@$old_host -T "{{ pgpool_pg_ctl }} -D $old_path stop -m fast" -oConnectTimeout=3
+        sleep 5s
+    fi
+    if [ "$new_host" ] && [ "$new_path" ]; then
+        ssh postgres@$new_host -T "{{ pgpool_pg_ctl }} -D $new_path promote"
+    fi
+fi
